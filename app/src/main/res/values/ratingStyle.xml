@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/rating
+        </item> <!-- Replace rating_bar_white with the name of your custom drawable XML file -->
+    </style>
+</resources>
+

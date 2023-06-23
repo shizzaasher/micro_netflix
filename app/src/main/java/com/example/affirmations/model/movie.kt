@@ -1,6 +1,6 @@
 package com.example.affirmations.model
 
-data class movie(var poster_path: String, var title: String) {
+data class movie(var id: Int, var poster_path: String, var title: String, var release_date: String, var vote_count: Int, var original_language: String, var overview: String, var vote_average: Float) {
 }
 
 

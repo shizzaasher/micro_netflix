@@ -1,4 +1,4 @@
-package com.example.affirmations
+package com.example.affirmations.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -7,13 +7,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.affirmations.R
 import com.example.affirmations.adapter.ItemAdapter
 import com.example.affirmations.model.movie
 
 class MainActivity : AppCompatActivity() {
-
 
     var movie_list = ArrayList<ArrayList<movie>>()
 
@@ -24,6 +23,11 @@ class MainActivity : AppCompatActivity() {
 
     private val mNames = ArrayList<ArrayList<String>>()
     private val mImageUrls = ArrayList<ArrayList<String>>()
+    private val mDates = ArrayList<ArrayList<String>>()
+    private val mVotes = ArrayList<ArrayList<Int>>()
+    private val mLanguages = ArrayList<ArrayList<String>>()
+    private val mOverviews = ArrayList<ArrayList<String>>()
+    private val mRatings = ArrayList<ArrayList<Float>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +44,14 @@ class MainActivity : AppCompatActivity() {
                     for (j in 0 until jsonArray.length()) {
                         val jsonObj = jsonArray.getJSONObject(j)
                         val movie_ = movie(
+                            jsonObj.getInt("id"),
                             jsonObj.getString("poster_path"),
-                            jsonObj.getString("title")
+                            jsonObj.getString("title"),
+                            jsonObj.getString("release_date"),
+                            jsonObj.getInt("vote_count"),
+                            jsonObj.getString("original_language"),
+                            jsonObj.getString("overview"),
+                            jsonObj.getDouble("vote_count").toFloat()
                         )
 
                         temp_movie_list.add(movie_)
@@ -70,6 +80,11 @@ class MainActivity : AppCompatActivity() {
 
         val temp_names = ArrayList<String>()
         val temp_urls = ArrayList<String>()
+        val temp_dates = ArrayList<String>()
+        val temp_votes = ArrayList<Int>()
+        val temp_languages = ArrayList<String>()
+        val temp_overviews = ArrayList<String>()
+        val temp_ratings = ArrayList<Float>()
 
         for (i in 0 until movie_list[viewNo].count()) {
 
@@ -78,10 +93,20 @@ class MainActivity : AppCompatActivity() {
             temp = temp + movie_list[viewNo][i].poster_path
             temp_urls.add(temp)
             temp = ""
+            temp_dates.add(movie_list[viewNo][i].release_date)
+            temp_votes.add(movie_list[viewNo][i].vote_count)
+            temp_languages.add(movie_list[viewNo][i].original_language)
+            temp_overviews.add(movie_list[viewNo][i].overview)
+            temp_ratings.add(movie_list[viewNo][i].vote_average)
         }
 
         mNames.add(temp_names)
         mImageUrls.add(temp_urls)
+        mDates.add(temp_dates)
+        mVotes.add(temp_votes)
+        mLanguages.add(temp_languages)
+        mOverviews.add(temp_overviews)
+        mRatings.add(temp_ratings)
     }
 
     // add another function here
@@ -91,19 +116,20 @@ class MainActivity : AppCompatActivity() {
         val layoutManager0 = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         var recyclerView0: RecyclerView = findViewById(R.id.recycler_view0)
         recyclerView0.layoutManager = layoutManager0
-        val adapter0 = ItemAdapter(this, mNames[0], mImageUrls[0])
+        val adapter0 = ItemAdapter(this, mNames[0], mImageUrls[0], mDates[0], mVotes[0], mLanguages[0], mOverviews[0], mRatings[0])
         recyclerView0.adapter = adapter0
 
         val layoutManager1 = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         var recyclerView1: RecyclerView = findViewById(R.id.recycler_view1)
         recyclerView1.layoutManager = layoutManager1
-        val adapter1 = ItemAdapter(this, mNames[1], mImageUrls[1])
+        val adapter1 = ItemAdapter(this, mNames[1], mImageUrls[1], mDates[1], mVotes[1], mLanguages[1], mOverviews[1], mRatings[1])
         recyclerView1.adapter = adapter1
 
         val layoutManager2 = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         var recyclerView2: RecyclerView = findViewById(R.id.recycler_view2)
         recyclerView2.layoutManager = layoutManager2
-        val adapter2 = ItemAdapter(this, mNames[2], mImageUrls[2])
+        val adapter2 = ItemAdapter(this, mNames[2], mImageUrls[2], mDates[2], mVotes[2], mLanguages[2], mOverviews[2], mRatings[2])
         recyclerView2.adapter = adapter2
     }
+
 }

@@ -1,7 +1,10 @@
 package com.example.affirmations.adapter;
 
+import com.example.affirmations.activities.MovieScreen;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +25,22 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<String> mImageUrls = new ArrayList<>();
+    private ArrayList<String> mDates = new ArrayList<>();
+    private ArrayList<Integer> mVotes = new ArrayList<>();
+    private ArrayList<String> mLanguages = new ArrayList<>();
+    private ArrayList<String> mOverviews = new ArrayList<>();
+    private ArrayList<Float> mRatings = new ArrayList<>();
     private Context mContext;
 
-    public ItemAdapter(Context context, ArrayList<String> names, ArrayList<String> imageURLs) {
+    public ItemAdapter(Context context, ArrayList<String> names, ArrayList<String> imageURLs, ArrayList<String> dates, ArrayList<Integer> votes, ArrayList<String> languages, ArrayList<String> overviews, ArrayList<Float> ratings) {
         mNames = names;
         mImageUrls = imageURLs;
+        mDates = dates;
+        mVotes = votes;
+        mLanguages = languages;
+        mOverviews = overviews;
         mContext = context;
+        mRatings = ratings;
     }
 
     @NonNull
@@ -44,12 +57,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 .load(mImageUrls.get(position))
                 .into(holder.image);
         holder.text.setText(mNames.get(position));
-        holder.image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(mContext, mNames.get(position), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
@@ -57,7 +64,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         return mNames.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView image;
         TextView text;
 
@@ -65,6 +72,22 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             super(itemView);
             image = itemView.findViewById(R.id.imageView);
             text = itemView.findViewById(R.id.textView);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            Intent intent = new Intent(mContext, MovieScreen.class);
+            intent.putExtra("title", mNames.get(position));
+            intent.putExtra("url", mImageUrls.get(position));
+            intent.putExtra("release_date", mDates.get(position));
+            intent.putExtra("vote_count", mVotes.get(position));
+            intent.putExtra("original_language", mLanguages.get(position));
+            intent.putExtra("overview", mOverviews.get(position));
+            intent.putExtra("vote_average", mRatings.get(position));
+            mContext.startActivity(intent);
         }
     }
 }

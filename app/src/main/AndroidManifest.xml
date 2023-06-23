@@ -15,7 +15,12 @@
         android:theme="@style/Theme.Affirmations"
         tools:targetApi="31">
 
-        <activity android:name="com.example.affirmations.MainActivity"
+        <activity
+            android:name=".activities.MovieScreen"
+            android:theme="@style/Theme.AppCompat">
+        </activity>
+
+        <activity android:name="com.example.affirmations.activities.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
