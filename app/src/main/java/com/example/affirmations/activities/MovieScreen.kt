@@ -74,7 +74,7 @@ class MovieScreen : AppCompatActivity() {
 
         title_view.text = title
         date_view.text = releaseDate
-        if (language == "en") {
+        if (language.equals("en", true)) {
             language_view.text = "English"
         }
         votes_view.text = votes.toString() + " votes"

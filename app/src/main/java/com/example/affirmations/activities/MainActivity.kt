@@ -1,135 +1,100 @@
 package com.example.affirmations.activities
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.affirmations.R
-import com.example.affirmations.adapter.ItemAdapter
-import com.example.affirmations.model.movie
+import org.json.JSONException
+import org.json.JSONObject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), View.OnClickListener {
 
-    var movie_list = ArrayList<ArrayList<movie>>()
-
-    val apiList = listOf("https://api.themoviedb.org/3/movie/popular?api_key=ae56940853447c09afaeddd6844a6595&language=en-US&page=1",
-            "https://api.themoviedb.org/3/movie/top_rated?api_key=ae56940853447c09afaeddd6844a6595&language=en-US&page=1",
-        "https://api.themoviedb.org/3/movie/upcoming?api_key=ae56940853447c09afaeddd6844a6595&language=en-US&page=1",)
-
-
-    private val mNames = ArrayList<ArrayList<String>>()
-    private val mImageUrls = ArrayList<ArrayList<String>>()
-    private val mDates = ArrayList<ArrayList<String>>()
-    private val mVotes = ArrayList<ArrayList<Int>>()
-    private val mLanguages = ArrayList<ArrayList<String>>()
-    private val mOverviews = ArrayList<ArrayList<String>>()
-    private val mRatings = ArrayList<ArrayList<Float>>()
-
+    private lateinit var emailEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var enterButton: Button
+    private lateinit var errorMessageTextView: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val reqQueue: RequestQueue = Volley.newRequestQueue(this)
-        for (i in 0 until apiList.count()) {
+        setContentView(R.layout.activity_main)
 
-            var temp_movie_list = ArrayList<movie>()
+        emailEditText = findViewById(R.id.editEmailAddress)
+        passwordEditText = findViewById(R.id.editPassword)
+        enterButton = findViewById(R.id.button)
+        errorMessageTextView = findViewById(R.id.errorMessageTextView)
 
-            var request = JsonObjectRequest(
-                Request.Method.GET, apiList[i], null,
-                { res ->
-                    val jsonArray = res.getJSONArray("results")
+        // calling on click listener for the enter button
+        val button_view = findViewById<Button>(com.example.affirmations.R.id.button)
+        button_view.setOnClickListener(this)
 
-                    for (j in 0 until jsonArray.length()) {
-                        val jsonObj = jsonArray.getJSONObject(j)
-                        val movie_ = movie(
-                            jsonObj.getInt("id"),
-                            jsonObj.getString("poster_path"),
-                            jsonObj.getString("title"),
-                            jsonObj.getString("release_date"),
-                            jsonObj.getInt("vote_count"),
-                            jsonObj.getString("original_language"),
-                            jsonObj.getString("overview"),
-                            jsonObj.getDouble("vote_count").toFloat()
-                        )
+    }
 
-                        temp_movie_list.add(movie_)
+    override fun onClick(v: View?) {
 
+        val email = emailEditText.text.toString()
+        val password = passwordEditText.text.toString()
+
+        if (email.isNotEmpty() && password.isNotEmpty()) {
+            // Both email and password fields are filled
+
+            val url = "https://reqres.in/api/register"
+            val queue = Volley.newRequestQueue(this)
+
+            val request = object : StringRequest(
+                Request.Method.POST, url,
+                Response.Listener<String> { response ->
+                    // Registration successful, process the response here
+                    try {
+                        val jsonObject = JSONObject(response)
+                        val id = jsonObject.getInt("id")
+                        val token = jsonObject.getString("token")
+
+                        Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show()
+                        //// Proceed to the next activity
+                        //startActivity(Intent(this, AllMovies::class.java))
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                        Toast.makeText(this, "Error parsing response!", Toast.LENGTH_SHORT).show()
                     }
-
-
-                    movie_list.add(temp_movie_list)
-                    getImagesForView(i)
-                    if (i == 2) {
-                        initRecyclerViews()
-                    }
-                    // Handle successful response
                 },
-                { err ->
-                    // Handle error
+                Response.ErrorListener { error ->
+                    // Registration failed, handle the error here
+                    Toast.makeText(this, "Registration Failed!", Toast.LENGTH_SHORT).show()
+                    // You can display an error message or handle the error in another way
+                }) {
+                override fun getParams(): MutableMap<String, String> {
+                    val params = HashMap<String, String>()
+                    params["email"] = email
+                    params["password"] = password
+                    return params
                 }
-            )
 
-            reqQueue.add(request)
-            setContentView(R.layout.activity_main)
+            }
+
+            // Proceed to the next activity
+            startActivity(Intent(this, AllMovies::class.java))
+            
+            queue.add(request)
+        } else {
+            // Display error message
+            val errorMessage = "Please fill in both email and password"
+            errorMessageTextView.text = errorMessage
+            errorMessageTextView.visibility = View.VISIBLE
         }
     }
 
-    private fun getImagesForView(viewNo: Int) {
 
-        val temp_names = ArrayList<String>()
-        val temp_urls = ArrayList<String>()
-        val temp_dates = ArrayList<String>()
-        val temp_votes = ArrayList<Int>()
-        val temp_languages = ArrayList<String>()
-        val temp_overviews = ArrayList<String>()
-        val temp_ratings = ArrayList<Float>()
-
-        for (i in 0 until movie_list[viewNo].count()) {
-
-            temp_names.add(movie_list[viewNo][i].title)
-            var temp = "https://image.tmdb.org/t/p/w500/"
-            temp = temp + movie_list[viewNo][i].poster_path
-            temp_urls.add(temp)
-            temp = ""
-            temp_dates.add(movie_list[viewNo][i].release_date)
-            temp_votes.add(movie_list[viewNo][i].vote_count)
-            temp_languages.add(movie_list[viewNo][i].original_language)
-            temp_overviews.add(movie_list[viewNo][i].overview)
-            temp_ratings.add(movie_list[viewNo][i].vote_average)
-        }
-
-        mNames.add(temp_names)
-        mImageUrls.add(temp_urls)
-        mDates.add(temp_dates)
-        mVotes.add(temp_votes)
-        mLanguages.add(temp_languages)
-        mOverviews.add(temp_overviews)
-        mRatings.add(temp_ratings)
-    }
-
-    // add another function here
-
-    private fun initRecyclerViews() {
-
-        val layoutManager0 = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        var recyclerView0: RecyclerView = findViewById(R.id.recycler_view0)
-        recyclerView0.layoutManager = layoutManager0
-        val adapter0 = ItemAdapter(this, mNames[0], mImageUrls[0], mDates[0], mVotes[0], mLanguages[0], mOverviews[0], mRatings[0])
-        recyclerView0.adapter = adapter0
-
-        val layoutManager1 = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        var recyclerView1: RecyclerView = findViewById(R.id.recycler_view1)
-        recyclerView1.layoutManager = layoutManager1
-        val adapter1 = ItemAdapter(this, mNames[1], mImageUrls[1], mDates[1], mVotes[1], mLanguages[1], mOverviews[1], mRatings[1])
-        recyclerView1.adapter = adapter1
-
-        val layoutManager2 = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        var recyclerView2: RecyclerView = findViewById(R.id.recycler_view2)
-        recyclerView2.layoutManager = layoutManager2
-        val adapter2 = ItemAdapter(this, mNames[2], mImageUrls[2], mDates[2], mVotes[2], mLanguages[2], mOverviews[2], mRatings[2])
-        recyclerView2.adapter = adapter2
-    }
+    // Implement any additional functionality or event handling here
 
 }
+
+
